@@ -1,0 +1,9 @@
+.idea
+.env
+database.env
+**/__pycache__
+**/node_modules
+/resources
+/app/dids/package-lock.json
+/build
+bloom.license
