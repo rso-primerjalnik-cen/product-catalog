@@ -7,9 +7,3 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
-    working_dir: /code/
-    volumes:
-      - .:/code
-    command: sh -c "python app"
-    environment:
-      PYTHONPATH: "/code/"
