@@ -2,8 +2,12 @@ version: "3.8"
 
 services:
   products_api:
+#    image: lan123/rso-projekt:products
+#    container_name: products
     build:
       context: ./
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    environment:
+      PYTHONPATH: "/code/"

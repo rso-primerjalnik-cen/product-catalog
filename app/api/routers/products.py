@@ -3,9 +3,10 @@ from uuid import uuid4
 import requests
 from fastapi import APIRouter
 
-from app.common.models.domain import Product, ProductPrice
+from app.api.serializers.products import ProductFavoritesIn
+from app.common.models.domain import Product, ProductPrice, ProductFavorites
 from app.common.models.rdbms import ProductPricesPony
-from app.common.repository.rdbms import PonyProducts, PonyProductPrices
+from app.common.repository.rdbms import PonyProducts, PonyProductPrices, PonyProductFavorites
 
 router = APIRouter(prefix='/products', tags=['Products'])
 
@@ -31,6 +32,37 @@ async def get_all_products_api():
 
 
 @router.get('/db/')
-async def get_all_products():
+async def get_all_products_db():
     repo = PonyProducts()
     return repo.list()
+
+
+@router.get('/{product_uuid}/prices/')
+async def get_product_prices_from_db(product_uuid: str):
+    repo = PonyProductPrices()
+    return repo.list(product=product_uuid)
+
+
+@router.post('/favorites/{user_uuid}/')
+async def add_users_favorite_products(user_uuid: str, products: ProductFavoritesIn):
+    repo = PonyProductFavorites()
+
+    favs: ProductFavorites = repo.get(user_uuid=user_uuid)
+
+    if not favs:
+        repo.add(ProductFavorites(user_uuid=user_uuid, product_uuids=products.product_uuids))
+    else:
+        repo.update(uuid=favs.uuid, model=ProductFavorites(user_uuid=user_uuid, product_uuids=products.product_uuids))
+
+    return repo.get(user_uuid=user_uuid)
+
+
+@router.get('/favorites/{user_uuid}/')
+async def get_users_favorite_products(user_uuid: str):
+    repo = PonyProductFavorites()
+    favs = repo.get(user_uuid=user_uuid)
+
+    if not favs:
+        repo.add(ProductFavorites(user_uuid=user_uuid, products=[]))
+        return repo.get(user_uuid=user_uuid)
+    return favs

@@ -52,3 +52,9 @@ class ProductPrice(BaseModel):
     cena_kosarica: Optional[str]
     cena_kosarica_akcija: Optional[str]
     datestamp: Optional[str]
+
+
+class ProductFavorites(BaseModel):
+    uuid: Optional[str]
+    user_uuid: str
+    product_uuids: List[str] = []

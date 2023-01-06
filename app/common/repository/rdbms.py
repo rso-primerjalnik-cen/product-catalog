@@ -1,11 +1,12 @@
 from typing import Optional, List
+from uuid import uuid4
 
 from pony.orm import db_session
 from pony.orm.core import Query, select, desc, QueryResult
 
 from app.common.api.pagination import PaginationParameters
-from app.common.models.domain import Product, ProductPrice
-from app.common.models.rdbms import ProductsPony, ProductPricesPony
+from app.common.models.domain import Product, ProductPrice, ProductFavorites
+from app.common.models.rdbms import ProductsPony, ProductPricesPony, ProductFavoritesPony
 
 
 def order_query(query: Query, order_by: str) -> Query:
@@ -123,3 +124,57 @@ class PonyProductPrices(object):
 
     def from_pony(self, obj: ProductPricesPony) -> ProductPrice:
         return ProductPrice(**obj.to_dict())
+
+
+class PonyProductFavorites(object):
+    @db_session
+    def get(self, user_uuid: str) -> ProductFavorites:
+        product = ProductFavoritesPony.get(user_uuid=user_uuid)
+        return self.from_pony(product) if product else None
+
+    @db_session
+    def add(self, model: ProductFavorites, *args, **kwargs) -> str:
+        product_favorite = ProductFavoritesPony.get(user_uuid=model.user_uuid)
+        if not product_favorite:
+            # insert happens when we create new pony object in db session
+            product_favorite = self.to_pony(model)
+        return product_favorite.uuid
+
+    @db_session
+    def update(self, uuid: str, model: ProductFavorites, *args, **kwargs) -> ProductFavorites:
+        model_dict = model.dict()
+        model_dict.pop('uuid', None)
+        product_list = model_dict.pop('product_uuids', [])
+
+        if not product_list:
+            products_string = None
+        else:
+            products_string = ','.join(product_list)
+
+        ProductFavoritesPony[uuid].set(product_uuids=products_string, **model_dict)
+        return model
+
+    def to_pony(self, obj: ProductFavorites) -> ProductFavoritesPony:
+        o = obj.dict()
+        product_list = o.pop('product_uuids', [])
+        uuid = o.pop('uuid', None)
+
+        if not uuid:
+            uuid = str(uuid4())
+
+        if not product_list:
+            products_string = None
+        else:
+            products_string = ','.join(product_list)
+
+        return ProductFavoritesPony(uuid=uuid, product_uuids=products_string, **o)
+
+    def from_pony(self, obj: ProductFavoritesPony) -> ProductFavorites:
+        o = obj.to_dict()
+        product_list = o.pop('product_uuids', None)
+
+        if not product_list:
+            products = []
+        else:
+            products = product_list.split(',')
+        return ProductFavorites(product_uuids=products, **o)

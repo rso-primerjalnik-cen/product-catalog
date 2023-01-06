@@ -1,3 +1,5 @@
+from typing import List
+
 from pony.orm import Database, PrimaryKey, Optional
 
 from app.common.settings import get_settings
@@ -58,3 +60,9 @@ class ProductPricesPony(db.Entity):
     cena_kosarica_akcija = Optional(str, nullable=True)
     datestamp = Optional(str, nullable=True)
 
+
+class ProductFavoritesPony(db.Entity):
+    _table_ = 'product_favorites'
+    uuid = PrimaryKey(str)
+    user_uuid = Optional(str, nullable=True)
+    product_uuids = Optional(str, nullable=True)

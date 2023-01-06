@@ -108,3 +108,12 @@ create table if not exists "product_prices"
     product                         text
 );
 
+
+create table if not exists "product_favorites"
+(
+    uuid                            text default uuid_generate_v4() not null
+        constraint product_favorites_pk
+            primary key,
+    user_uuid                       text,
+    product_uuids                   text
+);
