@@ -1,11 +1,6 @@
-from typing import List
-
 from pony.orm import Database, PrimaryKey, Optional
 
-from app.common.settings import get_settings
-
 db = Database()
-settings = get_settings()
 
 
 class ProductsPony(db.Entity):

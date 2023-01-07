@@ -11,3 +11,9 @@ services:
       - "8000:8000"
     environment:
       PYTHONPATH: "/code/"
+    networks:
+        - users_internal-network
+
+networks:
+  users_internal-network:
+    external: true

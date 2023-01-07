@@ -5,7 +5,6 @@ from fastapi import APIRouter
 
 from app.api.serializers.products import ProductFavoritesIn
 from app.common.models.domain import Product, ProductPrice, ProductFavorites
-from app.common.models.rdbms import ProductPricesPony
 from app.common.repository.rdbms import PonyProducts, PonyProductPrices, PonyProductFavorites
 
 router = APIRouter(prefix='/products', tags=['Products'])

@@ -17,4 +17,3 @@ async def startup():
     # Pony ORM
     db.bind(**settings.postgres_conn)
     db.generate_mapping(create_tables=False, check_tables=True)
-
