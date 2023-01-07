@@ -12,6 +12,11 @@ class Settings(object):
     c = None
 
     def __init__(self):
+        import os
+        from dotenv import load_dotenv
+        load_dotenv()
+        consul_host = os.getenv('CONSUL_HOST')
+        self.CONSUL_HOST = consul_host if consul_host else self.CONSUL_HOST
         self.c = Consul(host=self.CONSUL_HOST)
 
     @property
