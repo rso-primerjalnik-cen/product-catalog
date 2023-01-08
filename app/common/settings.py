@@ -10,6 +10,7 @@ class Settings(object):
     PAGINATION_DEFAULT_OFFSET: int = 0
     CONSUL_HOST = 'my-consul'
     PRODUCTS_LIVENESS_CHECK = 'good'
+    FAULT_TOLERANCE_CHECK = 'good'
     c = None
 
     def __init__(self):
@@ -27,6 +28,13 @@ class Settings(object):
                     password=self.get_postgresql_pwd(),
                     user=self.get_postgresql_user(),
                     database=self.get_postgresql_db())
+
+    def get_fault_tolerance_check(self):
+        index = None
+        index, data = self.c.kv.get('FAULT_TOLERANCE_CHECK', index=index)
+        if data is not None:
+            self.FAULT_TOLERANCE_CHECK = data['Value'].decode("utf-8")
+        return self.FAULT_TOLERANCE_CHECK
 
     def get_liveness_check(self):
         index = None

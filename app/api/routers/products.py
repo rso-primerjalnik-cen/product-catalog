@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 import requests
+from circuitbreaker import circuit, CircuitBreakerMonitor
 from fastapi import APIRouter, HTTPException
 from starlette import status
 from starlette.responses import Response
@@ -11,6 +12,34 @@ from app.common.repository.rdbms import PonyProducts, PonyProductPrices, PonyPro
 from app.common.settings import get_settings
 
 router = APIRouter(prefix='/products', tags=['Products'])
+
+FAILURES = 3
+TIMEOUT = 30
+
+
+def fallback(*args, **kwargs):
+    print('CIRCUIT BREAKER OPENED AND FALLBACK FUNCTION CALLED')
+    for x in CircuitBreakerMonitor.get_circuits():
+        print(f'Circuit name: {x.name}')
+        print(f'Circuit state: {x.name}')
+        print(f'Circuit will be open until {x.open_remaining} seconds pass')
+    return None
+
+
+@circuit(failure_threshold=FAILURES, recovery_timeout=TIMEOUT,
+         fallback_function=fallback, expected_exception=HTTPException)
+def call_bad_url():
+    s = get_settings()
+    fault_tolerance_check = s.get_fault_tolerance_check()
+    if fault_tolerance_check == 'bad':
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail='Fault tolerance endpoint raised an exception')
+    return dict(status='OK')
+
+
+@router.get('/fault-tolerance/')
+async def fault_tolerance_example():
+    return call_bad_url()
 
 
 @router.get('/health/live/')
