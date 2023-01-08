@@ -9,6 +9,7 @@ class Settings(object):
     PAGINATION_DEFAULT_LIMIT: int = 20
     PAGINATION_DEFAULT_OFFSET: int = 0
     CONSUL_HOST = 'my-consul'
+    PRODUCTS_LIVENESS_CHECK = 'good'
     c = None
 
     def __init__(self):
@@ -26,6 +27,13 @@ class Settings(object):
                     password=self.get_postgresql_pwd(),
                     user=self.get_postgresql_user(),
                     database=self.get_postgresql_db())
+
+    def get_liveness_check(self):
+        index = None
+        index, data = self.c.kv.get('PRODUCTS_LIVENESS_CHECK', index=index)
+        if data is not None:
+            self.PRODUCTS_LIVENESS_CHECK = data['Value'].decode("utf-8")
+        return self.PRODUCTS_LIVENESS_CHECK
 
     def get_postgresql_host(self):
         index = None

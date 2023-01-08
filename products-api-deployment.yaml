@@ -16,10 +16,25 @@ spec:
         - image: lan123/rso-projekt:products
           imagePullPolicy: "Always"
           name: products-api
+          env:
+            - name: CONSUL_HOST
+              value: 20.23.218.60
           ports:
             - containerPort: 8000
               name: server
               protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /api/v1/products/health/live/
+              port: server
+            initialDelaySeconds: 20
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /api/v1/products/health/ready/
+              port: server
+            initialDelaySeconds: 20
+            periodSeconds: 3
 
 ---
 
@@ -28,7 +43,7 @@ kind: Service
 metadata:
   name: products-api
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - port: 8000
       protocol: TCP

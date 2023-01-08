@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 
 from app.api.routers import products
 from app.common.models.rdbms import db
@@ -9,7 +9,16 @@ fastapi_app = FastAPI()
 settings = get_settings()
 
 API_PREFIX = '/api/v1'
+
+r = APIRouter()
+
+
+@r.get('/health/')
+async def entrypoint():
+    return dict(status='OK')
+
 fastapi_app.include_router(products.router, prefix=API_PREFIX)
+fastapi_app.include_router(r)
 
 
 @fastapi_app.on_event("startup")

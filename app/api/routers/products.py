@@ -1,13 +1,34 @@
 from uuid import uuid4
 
 import requests
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from starlette import status
 
 from app.api.serializers.products import ProductFavoritesIn
 from app.common.models.domain import Product, ProductPrice, ProductFavorites
 from app.common.repository.rdbms import PonyProducts, PonyProductPrices, PonyProductFavorites
+from app.common.settings import get_settings
 
 router = APIRouter(prefix='/products', tags=['Products'])
+
+
+@router.get('/health/live/')
+async def health_check_liveness():
+    s = get_settings()
+    liveness_check = s.get_liveness_check()
+    if liveness_check == 'bad':
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail='Liveness check failed')
+    return dict(status='OK')
+
+
+@router.get('/health/ready/')
+async def health_check_readiness():
+    repo = PonyProducts()
+    try:
+        repo.list()
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e))
+    return dict(status='OK')
 
 
 @router.get('/')
