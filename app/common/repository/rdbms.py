@@ -144,6 +144,7 @@ class PonyProductFavorites(object):
     def update(self, uuid: str, model: ProductFavorites, *args, **kwargs) -> ProductFavorites:
         model_dict = model.dict()
         model_dict.pop('uuid', None)
+        model_dict.pop('products', None)
         product_list = model_dict.pop('product_uuids', [])
 
         if not product_list:

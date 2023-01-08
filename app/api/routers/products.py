@@ -3,6 +3,7 @@ from uuid import uuid4
 import requests
 from fastapi import APIRouter, HTTPException
 from starlette import status
+from starlette.responses import Response
 
 from app.api.serializers.products import ProductFavoritesIn
 from app.common.models.domain import Product, ProductPrice, ProductFavorites
@@ -78,11 +79,20 @@ async def add_users_favorite_products(user_uuid: str, products: ProductFavorites
 
 
 @router.get('/favorites/{user_uuid}/')
-async def get_users_favorite_products(user_uuid: str):
+async def get_users_favorite_products(user_uuid: str, just_uuid: int = 1):
     repo = PonyProductFavorites()
     favs = repo.get(user_uuid=user_uuid)
 
     if not favs:
         repo.add(ProductFavorites(user_uuid=user_uuid, products=[]))
-        return repo.get(user_uuid=user_uuid)
+        favs = repo.get(user_uuid=user_uuid)
+
+    if not just_uuid:
+        product_repo = PonyProducts()
+        favs.products = product_repo.list(uuid__in=favs.product_uuids)
     return favs
+
+
+@router.delete('/favorites/{user_uuid}/{product_uuid}/')
+async def delete_users_favorite_product(user_uuid: str, product_uuid: str):
+    return Response(status_code=status.HTTP_204_NO_CONTENT, content='Deleted successfully')

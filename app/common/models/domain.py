@@ -58,3 +58,4 @@ class ProductFavorites(BaseModel):
     uuid: Optional[str]
     user_uuid: str
     product_uuids: List[str] = []
+    products: List[Product] = []
