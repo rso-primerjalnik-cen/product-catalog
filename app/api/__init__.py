@@ -4,11 +4,11 @@ from app.api.routers import products
 from app.common.models.rdbms import db
 from app.common.settings import get_settings
 
-fastapi_app = FastAPI()
+API_PREFIX = '/api/v1'
+
+fastapi_app = FastAPI(docs_url=f"{API_PREFIX}/products/docs")
 
 settings = get_settings()
-
-API_PREFIX = '/api/v1'
 
 r = APIRouter()
 
