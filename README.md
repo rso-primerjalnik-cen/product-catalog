@@ -17,12 +17,6 @@ $ docker-compose build
 
 # run docker container in detached mode
 $ docker-compose up -d
-
-# get an interactive shell of the running docker-compose service
-$ docker-compose exec products_api bash
-
-# stop the container
-$ npm run generate
 ```
 
 ## Post config to consul server
@@ -37,7 +31,7 @@ $ python
 ```
 
 ```python
-# import script post_consul_config()
+# import script post_consul_config
 from app.common.scripts import post_consul_config
 # run the script
 post_consul_config()
